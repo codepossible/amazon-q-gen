@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 interface Column {
   column_name: string;
@@ -18,6 +19,9 @@ interface SearchFilter {
 
 export default function TablePage({ params }: { params: { tableName: string } }) {
   const { tableName } = params;
+  const searchParams = useSearchParams();
+  const schema = searchParams.get('schema') || 'public';
+  
   const [columns, setColumns] = useState<Column[]>([]);
   const [data, setData] = useState<TableData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +35,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
   useEffect(() => {
     async function fetchColumns() {
       try {
-        const response = await fetch(`/api/tables/columns?tableName=${tableName}`);
+        const response = await fetch(`/api/tables/columns?tableName=${tableName}&schema=${schema}`);
         if (!response.ok) {
           throw new Error('Failed to fetch columns');
         }
@@ -43,7 +47,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
     }
 
     fetchColumns();
-  }, [tableName]);
+  }, [tableName, schema]);
 
   // Fetch table data
   useEffect(() => {
@@ -51,7 +55,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
       setLoading(true);
       try {
         // Start with base URL
-        let url = `/api/tables?tableName=${tableName}`;
+        let url = `/api/tables?tableName=${tableName}&schema=${schema}`;
         
         // Add column filters
         Object.entries(filters).forEach(([key, value]) => {
@@ -84,7 +88,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
     }
 
     fetchData();
-  }, [tableName, filters, dateColumn, dateFrom, dateTo]);
+  }, [tableName, schema, filters, dateColumn, dateFrom, dateTo]);
 
   // Update filter for a specific column
   const updateFilter = (column: string, value: string) => {
@@ -125,7 +129,10 @@ export default function TablePage({ params }: { params: { tableName: string } })
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Table: {tableName}</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Table: {tableName}</h1>
+          <p className="text-gray-500">Schema: {schema}</p>
+        </div>
         <Link 
           href="/"
           className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"

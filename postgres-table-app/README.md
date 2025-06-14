@@ -4,8 +4,10 @@ A Next.js application that connects to a PostgreSQL database, displays table dat
 
 ## Features
 
-- View data from any PostgreSQL table
-- Search table data by column values
+- View data from any PostgreSQL table across multiple schemas
+- Search table data by multiple column values simultaneously
+- Filter date columns with date range pickers
+- Typeahead search for table names
 - Responsive table display
 - TypeScript support
 
@@ -37,9 +39,12 @@ npm run dev
 
 ## Usage
 
-1. Enter the name of the PostgreSQL table you want to view on the home page.
-2. View the table data on the table page.
-3. Use the search form to filter data by column values.
+1. Select a database schema from the dropdown
+2. Start typing a table name to see matching tables in the typeahead dropdown
+3. Select a table and click "View Table"
+4. View the table data on the table page
+5. Use the search form to filter data by multiple column values
+6. Use date range filters for date columns
 
 ## Technologies Used
 

@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const tableName = searchParams.get('tableName');
+    const schema = searchParams.get('schema') || 'public';
     
     if (!tableName) {
       return NextResponse.json({ error: 'Table name is required' }, { status: 400 });
@@ -14,9 +15,9 @@ export async function GET(request: NextRequest) {
     const tablesQuery = `
       SELECT table_name 
       FROM information_schema.tables 
-      WHERE table_schema = 'public'
+      WHERE table_schema = $1
     `;
-    const tables = await executeQuery(tablesQuery);
+    const tables = await executeQuery(tablesQuery, [schema]);
     const tableExists = tables.some((t: any) => t.table_name === tableName);
     
     if (!tableExists) {
@@ -24,10 +25,10 @@ export async function GET(request: NextRequest) {
     }
     
     // Get columns to validate search parameters
-    const columns = await getTableColumns(tableName);
+    const columns = await getTableColumns(tableName, schema);
     
     // Build the query based on search parameters
-    let query = `SELECT * FROM "${tableName}"`;
+    let query = `SELECT * FROM "${schema}"."${tableName}"`;
     const conditions: string[] = [];
     const values: any[] = [];
     let paramIndex = 1;
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
     // Process search filters
     for (const [key, value] of searchParams.entries()) {
       // Skip non-filter parameters
-      if (['tableName', 'dateFrom', 'dateTo', 'dateColumn'].includes(key)) {
+      if (['tableName', 'schema', 'dateFrom', 'dateTo', 'dateColumn'].includes(key)) {
         continue;
       }
       
