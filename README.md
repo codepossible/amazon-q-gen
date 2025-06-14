@@ -41,3 +41,11 @@ Create a nextjs project using typescript that reads tables in PostgreSQL databas
 ``` text
 Change the search to be able to include multiple columns at a time and add support for date ranges
 ```
+
+``` text
+Please add a .gitignore file to the project
+```
+
+``` text
+How about adding support for multiple database schemas and drop down with type ahead of tables in the database on the home page?
+```
