@@ -1,15 +1,33 @@
+"use client";
+
 import { Amplify, Auth } from 'aws-amplify';
 
-// Configure Amplify
-Amplify.configure({
-  Auth: {
-    region: process.env.NEXT_PUBLIC_COGNITO_REGION,
-    userPoolId: process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID,
-    userPoolWebClientId: process.env.NEXT_PUBLIC_COGNITO_APP_CLIENT_ID,
-    identityPoolId: process.env.NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID,
-  },
-  ssr: true
+// Get Cognito configuration from environment variables
+const REGION = process.env.NEXT_PUBLIC_COGNITO_REGION;
+const USER_POOL_ID = process.env.NEXT_PUBLIC_COGNITO_USER_POOL_ID;
+const APP_CLIENT_ID = process.env.NEXT_PUBLIC_COGNITO_APP_CLIENT_ID;
+const IDENTITY_POOL_ID = process.env.NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID;
+
+// Log configuration for debugging
+console.log('Cognito Config:', { 
+  region: REGION,
+  userPoolId: USER_POOL_ID ? USER_POOL_ID.substring(0, 5) + '...' : undefined,
+  clientId: APP_CLIENT_ID ? APP_CLIENT_ID.substring(0, 5) + '...' : undefined,
+  identityPoolId: IDENTITY_POOL_ID ? IDENTITY_POOL_ID.substring(0, 5) + '...' : undefined
 });
+
+// Configure Amplify
+if (typeof window !== 'undefined') {
+  Amplify.configure({
+    Auth: {
+      region: REGION,
+      userPoolId: USER_POOL_ID,
+      userPoolWebClientId: APP_CLIENT_ID,
+      identityPoolId: IDENTITY_POOL_ID,
+    },
+    ssr: true
+  });
+}
 
 export async function signIn(username: string, password: string) {
   try {

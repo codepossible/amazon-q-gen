@@ -27,5 +27,5 @@ export function middleware(request: NextRequest) {
 
 // Configure the paths that should be checked by the middleware
 export const config = {
-  matcher: ['/', '/tables/:path*', '/login'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

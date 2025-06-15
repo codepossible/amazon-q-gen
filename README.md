@@ -24,7 +24,8 @@ This is a pre-requisite to run this project, so to have a running database serve
 Run the docker image as:
 
 ``` shell
-docker run --name postgres -p 5432:5432  -e POSTGRES_PASSWORD=mysecretpassword -d postgres  
+docker network create -d bridge pgbrowse-net
+docker run --name postgres -p 5432:5432 --network=pgbrowse-net -e POSTGRES_PASSWORD=mysecretpassword -d postgres  
 ```
 
 1. Connect to the `postgres` database on the PostgreSQL server and create new database eg - `emails`.

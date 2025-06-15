@@ -2,13 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { getCurrentUser, signOut } from '@/lib/auth';
 
 export default function Navbar() {
   const [username, setUsername] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     async function fetchUser() {
@@ -17,7 +15,6 @@ export default function Navbar() {
         setUsername(user.attributes.given_name);
       }
       setLoading(false);
-      
     }
 
     fetchUser();
@@ -27,7 +24,8 @@ export default function Navbar() {
     const { error } = await signOut();
     setUsername(null);
     if (!error) {
-      router.push('/login');
+      // Use hard navigation instead of router.push
+      window.location.href = '/login';
     }
   };
 

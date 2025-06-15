@@ -11,8 +11,11 @@ A Next.js application that connects to a PostgreSQL database, displays table dat
 - Typeahead search for table names
 - Responsive table display
 - TypeScript support
+- Docker support for containerized deployment
 
 ## Setup
+
+### Local Development
 
 1. Install dependencies:
 
@@ -37,19 +40,35 @@ NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-3. Set up AWS Cognito:
-   - Create a User Pool in AWS Cognito
-   - Create an App Client in the User Pool
-   - Create an Identity Pool and link it to the User Pool
-   - Update the `.env.local` file with your Cognito details
-
-4. Run the development server:
+3. Run the development server:
 
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+### Docker Deployment
+
+1. Create a `.env` file with your environment variables (similar to `.env.local`).
+
+2. Build and run the Docker container:
+
+```bash
+# Build and start the container
+docker-compose up -d
+
+# Or build the image separately
+docker build -t postgres-table-app .
+docker run -p 3000:3000 --env-file .env postgres-table-app
+```
+
+3. Access the application at [http://localhost:3000](http://localhost:3000).
+
+## AWS Cognito Setup
+
+1. Create a User Pool in AWS Cognito
+2. Create an App Client in the User Pool
+3. Create an Identity Pool and link it to the User Pool
+4. Update the environment variables with your Cognito details
 
 ## Usage
 
@@ -68,3 +87,4 @@ npm run dev
 - Tailwind CSS
 - AWS Cognito for authentication
 - PostgreSQL (pg library)
+- Docker

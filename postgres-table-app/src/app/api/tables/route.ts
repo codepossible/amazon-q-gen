@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { executeQuery, getTableColumns } from '@/lib/db';
 
+// Mark as dynamic to prevent static generation
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -33,8 +36,9 @@ export async function GET(request: NextRequest) {
     const values: any[] = [];
     let paramIndex = 1;
     
-    // Process search filters
-    for (const [key, value] of searchParams.entries()) {
+    // Process search filters - convert entries() to Array to avoid TypeScript iteration error
+    const searchParamsArray = Array.from(searchParams.entries());
+    for (const [key, value] of searchParamsArray) {
       // Skip non-filter parameters
       if (['tableName', 'schema', 'dateFrom', 'dateTo', 'dateColumn'].includes(key)) {
         continue;
