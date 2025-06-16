@@ -19,32 +19,32 @@ A Next.js application that connects to a PostgreSQL database, displays table dat
 
 1. Install dependencies:
 
-```bash
-npm install
-```
+    ```bash
+    npm install
+    ```
 
 2. Configure your PostgreSQL connection and AWS Cognito by editing the `.env.local` file (use `.env.local.example` as a template):
 
-```
-# Database Configuration
-POSTGRES_USER=your_username
-POSTGRES_PASSWORD=your_password
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_DATABASE=your_database
+    ``` bash
+    # Database Configuration
+    POSTGRES_USER=your_username
+    POSTGRES_PASSWORD=your_password
+    POSTGRES_HOST=localhost
+    POSTGRES_PORT=5432
+    POSTGRES_DATABASE=your_database
 
-# AWS Cognito Configuration
-NEXT_PUBLIC_COGNITO_REGION=us-east-1
-NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
-NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
-NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
+    # AWS Cognito Configuration
+    NEXT_PUBLIC_COGNITO_REGION=us-east-1
+    NEXT_PUBLIC_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
+    NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
+    NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID=us-east-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+    ```
 
 3. Run the development server:
 
-```bash
-npm run dev
-```
+    ```bash
+    npm run dev
+    ```
 
 ### Docker Deployment
 
@@ -52,14 +52,14 @@ npm run dev
 
 2. Build and run the Docker container:
 
-```bash
-# Build and start the container
-docker-compose up -d
+    ```bash
+    # Build and start the container
+    docker-compose up -d
 
-# Or build the image separately
-docker build -t postgres-table-app .
-docker run -p 3000:3000 --env-file .env postgres-table-app
-```
+    # Or build the image separately
+    docker build -t postgres-table-app .
+    docker run -p 3000:3000 --env-file .env postgres-table-app
+    ```
 
 3. Access the application at [http://localhost:3000](http://localhost:3000).
 
