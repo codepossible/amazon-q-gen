@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     if (dateColumn) {
       const column = columns.find((c: any) => c.column_name === dateColumn);
       if (column) {
-        const isDateType = ['date', 'timestamp', 'timestamptz'].includes(column.data_type);
+        const isDateType = ['date', 'timestamp', 'timestamptz', 'timestamp without time zone'].includes(column.data_type);
         
         if (isDateType && dateFrom) {
           conditions.push(`"${dateColumn}" >= $${paramIndex}`);
@@ -82,10 +82,31 @@ export async function GET(request: NextRequest) {
       query += ` WHERE ${conditions.join(' AND ')}`;
     }
     
-    query += ' LIMIT 100';
+    // Get total count for pagination
+    const countQuery = `SELECT COUNT(*) FROM "${schema}"."${tableName}"${conditions.length > 0 ? ` WHERE ${conditions.join(' AND ')}` : ''}`;
+    const countResult = await executeQuery(countQuery, values);
+    const totalCount = parseInt(countResult[0].count);
+    
+    // Add pagination
+    const page = parseInt(searchParams.get('page') || '1');
+    const pageSize = 50;
+    const offset = (page - 1) * pageSize;
+    
+    query += ` LIMIT 1000`;
+    if (page > 1) {
+      query += ` OFFSET ${offset}`;
+    }
     
     const data = await executeQuery(query, values);
-    return NextResponse.json({ data });
+    return NextResponse.json({ 
+      data,
+      pagination: {
+        totalCount,
+        page,
+        pageSize,
+        totalPages: Math.ceil(totalCount / pageSize)
+      }
+    });
   } catch (error: any) {
     console.error('API error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });

@@ -2,7 +2,7 @@
 services:
   app:
     env_file: 
-      - docker.env
+      - .env-docker.local
     build:
       context: .
       dockerfile: Dockerfile
