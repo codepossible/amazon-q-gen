@@ -70,6 +70,46 @@ A Next.js application that connects to a PostgreSQL database, displays table dat
 3. Create an Identity Pool and link it to the User Pool
 4. Update the environment variables with your Cognito details
 
+## Build for AWS ECR
+
+> Note: Applies only when the docker is being built on a local development machine (such as Macbook on Apple Silicon) and being pushed to AWS Services which typically use - linux/amd64 architectures.
+
+1. Inject value of the build arguments previous stored in file (eg. `docker.local)` into the environment variables using the following command:
+
+    ``` bash
+    export $(grep -v '^#' docker.local | xargs)
+    ```
+
+2. Build the Docker image for Linux/AMD64 architecture using the command as:
+
+    ``` bash
+    docker buildx build --platform linux/amd64 \                                                                                          
+    --build-arg NEXT_PUBLIC_COGNITO_REGION=${NEXT_PUBLIC_COGNITO_REGION} \
+    --build-arg NEXT_PUBLIC_COGNITO_USER_POOL_ID=${NEXT_PUBLIC_COGNITO_USER_POOL_ID} \
+    --build-arg NEXT_PUBLIC_COGNITO_APP_CLIENT_ID=${NEXT_PUBLIC_COGNITO_APP_CLIENT_ID} \
+    --build-arg NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID=${NEXT_PUBLIC_COGNITO_IDENTITY_POOL_ID} \
+    -t postgres-table-app:latest-amd64 \
+    -f Dockerfile .
+    ```
+
+3. Login to AWS ECR using AWS CLI. An active AWS profile is recommended prior to running the command below
+
+    ``` bash
+    aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin [REPLACE_WITH_AWS_ECR_HOST_ADDRESS]
+    ```
+
+4. Tag the build image with the AWS ECR repository:
+
+    ``` bash
+    docker tag postgres-table-app:latest-amd64 [REPLACE_WITH_AWS_ECR_REPOSITORY]:latest   
+    ```
+
+5. Push to AWS ECR repository:
+
+    ``` bash
+    docker push [REPLACE_WITH_AWS_ECR_REPOSITORY]:latest  
+    ```
+
 ## Usage
 
 1. Log in with your Cognito user credentials
