@@ -53,6 +53,8 @@ export default function TablePage({ params }: { params: { tableName: string } })
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [hiddenColumns, setHiddenColumns] = useState<string[]>([]);
+  const [queryTime, setQueryTime] = useState<number>(0);
 
   // Fetch table columns
   useEffect(() => {
@@ -76,6 +78,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
+      const startTime = Date.now();
       try {
         // Start with base URL
         let url = `/api/tables?tableName=${tableName}&schema=${schema}&page=${currentPage}`;
@@ -108,6 +111,8 @@ export default function TablePage({ params }: { params: { tableName: string } })
         setError(err.message);
         setData([]);
       } finally {
+        const endTime = Date.now();
+        setQueryTime(endTime - startTime);
         setLoading(false);
       }
     }
@@ -223,6 +228,20 @@ export default function TablePage({ params }: { params: { tableName: string } })
     setCurrentPage(1);
   };
   
+  // Hide/show column functions
+  const hideColumn = (columnName: string) => {
+    if (!hiddenColumns.includes(columnName)) {
+      setHiddenColumns([...hiddenColumns, columnName]);
+    }
+  };
+
+  const showColumn = (columnName: string) => {
+    setHiddenColumns(hiddenColumns.filter(col => col !== columnName));
+  };
+
+  // Get visible columns
+  const visibleColumns = columns.filter(col => !hiddenColumns.includes(col.column_name));
+
   // Initialize filters from current filters
   useEffect(() => {
     const items: FilterItem[] = [];
@@ -479,6 +498,26 @@ export default function TablePage({ params }: { params: { tableName: string } })
           </div>
         )}
         
+        {/* Hidden Columns */}
+        {hiddenColumns.length > 0 && (
+          <div className="mb-4">
+            <h3 className="text-sm font-medium text-gray-700 mb-2">Hidden Columns</h3>
+            <div className="flex flex-wrap gap-2">
+              {hiddenColumns.map((columnName) => (
+                <div key={columnName} className="bg-gray-200 px-3 py-1 rounded-full flex items-center space-x-2">
+                  <span className="text-sm">{columnName}</span>
+                  <button
+                    onClick={() => showColumn(columnName)}
+                    className="text-red-500 hover:text-red-700 font-bold"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
         {/* Filter Actions */}
         <div className="flex justify-end space-x-2">
           <button
@@ -504,25 +543,37 @@ export default function TablePage({ params }: { params: { tableName: string } })
           <p className="text-center py-4">No data found</p>
         ) : (
           <>
-            <div className="mb-4 text-sm text-gray-600">
-              Showing {data.length} rows of {totalCount} total results
+            <div className="mb-4 flex justify-between items-center text-sm text-gray-600">
+              <span>Showing {data.length} rows of {totalCount} total results</span>
+              <span>Query time: {Math.floor(queryTime / 3600000)}h {Math.floor((queryTime % 3600000) / 60000)}m {Math.floor((queryTime % 60000) / 1000)}s</span>
             </div>
           <table className="min-w-full bg-white border border-gray-300">
             <thead>
               <tr className="bg-gray-100">
-                {columns.map((column) => (
+                {visibleColumns.map((column) => (
                   <th 
                     key={column.column_name}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b cursor-pointer"
-                    onClick={() => handleSort(column.column_name)}
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b"
                   >
-                    <div className="flex items-center">
-                      <span>{column.column_name}</span>
-                      {sortColumn === column.column_name && (
-                        <span className="ml-1">
-                          {sortDirection === 'asc' ? '↑' : '↓'}
-                        </span>
-                      )}
+                    <div className="flex items-center justify-between">
+                      <div 
+                        className="flex items-center cursor-pointer"
+                        onClick={() => handleSort(column.column_name)}
+                      >
+                        <span>{column.column_name}</span>
+                        {sortColumn === column.column_name && (
+                          <span className="ml-1">
+                            {sortDirection === 'asc' ? '↑' : '↓'}
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => hideColumn(column.column_name)}
+                        className="text-gray-400 hover:text-gray-600 ml-2"
+                        title="Hide column"
+                      >
+                        👁️‍🗨️
+                      </button>
                     </div>
                     <div className="text-xs font-normal text-gray-400">{column.data_type}</div>
                   </th>
@@ -532,7 +583,7 @@ export default function TablePage({ params }: { params: { tableName: string } })
             <tbody>
               {data.map((row, rowIndex) => (
                 <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                  {columns.map((column) => (
+                  {visibleColumns.map((column) => (
                     <td 
                       key={`${rowIndex}-${column.column_name}`}
                       className="px-6 py-4 text-sm text-gray-500 border-b break-words"
